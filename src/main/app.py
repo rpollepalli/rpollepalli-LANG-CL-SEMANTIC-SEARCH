@@ -34,7 +34,26 @@ def get_embeddings_from_csv(
     - Generate a unique ID for each document (e.g., using the line number).
     """
     # Implement your code here
-    pass
+    dataset = []
+    metadatalist = []
+    ids=[]
+    count=0
+    keys=[]
+    metadata = []
+    for index, element in enumerate(csv_file_data):
+        if(index>0):
+            metadatalist.append(element[0])
+            dataset.append(element[1])
+            count +=1
+            ids.append(count)
+            title="title"
+            key = string  = f"{title}{count}"
+            keys.append(key)
+    
+    for x in metadatalist:
+        dict = {"title": x}
+        metadata.append(dict)
+    return (dataset, metadata, ids)
 
 
 def get_chromadb_collection(
@@ -60,7 +79,18 @@ def get_chromadb_collection(
     - Add the documents, metadatas, and ids to the collection using the collection.add method.
     """
     # Implement your code here
-    pass
+    chroma_client = chromadb.PersistentClient(path="../chroma")
+    chroma_client.delete_collection("semantic-lab")
+    #collection=chroma_client.get_collection(name="semantic-lab")
+    collection = chroma_client.create_collection(name="semantic-lab")
+    #documents: List, metadatas: List, ids: List
+    for i, dataset_id in enumerate(documents):
+        collection.add(
+            documents=[documents[i]],
+            metadatas=[metadatas[i]],
+            ids=[str(ids[i])]
+        )
+    return collection
 
 
 def get_collection_query(user_input: str) -> chromadb.QueryResult:
@@ -81,7 +111,14 @@ def get_collection_query(user_input: str) -> chromadb.QueryResult:
     - Return the query result.
     """
     # Implement your code here
-    pass
+    chroma_client = chromadb.PersistentClient(path="../chroma")
+    collection=chroma_client.get_collection(name="semantic-lab")
+    results = collection.query(
+        query_texts=[user_input],
+        n_results=5
+    )
+    print(results)
+    return results
 
 
 # ------------------------------------------------------------------------------
